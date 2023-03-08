@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import logging
 
-from .stf_configs import SEARCH_URL, SEARCH_FIELD, HOMEPAGE_IMPLICIT_WAITING_TIME, PAGE_FIELD
+from .stf_configs import SEARCH_URL, SEARCH_FIELD, HOMEPAGE_IMPLICIT_WAITING_TIME, PAGE_FIELD, \
+SEARCH_PAGE_IMPLICIT_WAITING_TIME
 
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
@@ -37,6 +38,20 @@ def format_url(search_key: str, page: str) -> str:
     return formed_url
 
 
+def get_articles_url_for_search(elements_list):
+    url_list = []
+    logger = logging.getLogger('scraper')
+    for i in elements_list:
+        try:
+            url_results = i.find_element(By.CSS_SELECTOR,\
+                                         "a[class='mat-tooltip-trigger ng-star-inserted']").get_attribute('href')
+            url_list.append(url_results)
+        except Exception as err:
+            logger.error(err)
+
+    return url_list
+
+
 def get_stf_main_pagination_size(url):
     logger = logging.getLogger('scraper')
     number_of_pages = 1
@@ -64,10 +79,23 @@ def paginate_trought_results(pages_number: int, search: str):
     except Exception as err:
         logger.error(f'Unexpected error while creating selenium web driver {err}')
     for i in range(1, pages_number):
-        logger.debug(f'Getting results for page {i}.')
-        url = format_url(search, pages_number)
-        chrome_drive.get(url)
-        chrome_drive.implicitly_wait(HOMEPAGE_IMPLICIT_WAITING_TIME)
+        try:
+            logger.debug(f'Getting results for page {i}.')
+            url = format_url(search, i)
+            chrome_drive.get(url)
+            chrome_drive.implicitly_wait(SEARCH_PAGE_IMPLICIT_WAITING_TIME)
+            #Getting the list o
+            list_of_results = chrome_drive.find_elements(By.CSS_SELECTOR,\
+                                                        "div[class='result-container jud-text p-15 ng-star-inserted']")
+            list_size = len(list_of_results)
+
+            logger.debug(f'Got all {list_size}, getting the URL list.')
+            results_url_list = get_articles_url_for_search(list_of_results)
+            logger.debug(f'Got all URLs: {results_url_list}')
+
+        except Exception as error:
+            logger.error(f"An unexpected error happened while getting the paginated data: {error}")
+
 
 
 
@@ -80,6 +108,6 @@ def perform_simple_stf_search(search_key: str) -> None:
     log_configs_in_use()
     logger = logging.getLogger('scraper')
     logger.debug(f"Performing the simple search using: {search_key}")
-    url = format_url(search_key)
-    pagination_limit = get_stf_main_pagination_size(url, 1)
+    url = format_url(search_key=search_key, page='1')
+    pagination_limit = get_stf_main_pagination_size(url)
     paginate_trought_results(pagination_limit, search_key)
