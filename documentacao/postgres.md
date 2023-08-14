@@ -57,3 +57,11 @@ psql -h localhost -U myuser -d mydatabase
 ```
 
 
+## Change the linux user back to root user (morallito)
+
+To exit the postgress user and return to the root user, use the command:
+
+```
+postgres@user-pc:~$ exit
+user@user-pc:~$ 
+``
