@@ -1,7 +1,7 @@
 # Banco de dados 
 
 
-O banco de dados está instalado em uma maquina rodando ubuntu server. PAra checar o estado do banco de dados 
+O banco de dados está instalado em uma maquina rodando ubuntu server. Para checar o estado do banco de dados 
 basta rodar o comando:
 
 ```
@@ -38,7 +38,7 @@ user@user-pc:~$ sudo -i -u postgres
 # Connect to the postgress database
 postgres@user-pc:~$ psql
 # Create a new user
-postgres=# CREATE USER myuser WITH PASSWORD 'mypassword';
+postgres=# CREATE USER escavador WITH PASSWORD 'escavador';
 # Create a new database
 postgres=# CREATE DATABASE mydatabase;
 # Grant all privileges on database
@@ -64,4 +64,55 @@ To exit the postgress user and return to the root user, use the command:
 ```
 postgres@user-pc:~$ exit
 user@user-pc:~$ 
-``
+```
+
+
+## Criando a tabela para armazenar os dados
+
+```sql
+    jurisprudence_table = """
+    CREATE TABLE IF NOT EXISTS jurisprudence (
+      id VARCHAR(255) PRIMARY KEY,
+      judgment_date DATE,
+      reporter_judge VARCHAR(255),
+      publication_date DATE,
+      court VARCHAR(255),
+      publication TEXT,
+      parties TEXT,
+      menu TEXT,
+      decision TEXT,
+      theme TEXT,
+      thesis TEXT,
+      indexing TEXT,
+      legislation TEXT,
+      observation TEXT,
+      doctrine TEXT,
+      full_body_url TEXT
+    );
+    """ 
+```
+
+## Postgress  commands
+
+### Connect to the database in psql 
+  
+  ``` 
+  \c database_name
+  ```
+
+### List all databases
+
+  ``` 
+  \l
+  ```
+
+### Get all tables in a database public schema
+
+  ``` 
+  \dt
+  ```
+### get a taable schema 
+
+  ``` 
+  \d+ table_name
+  ```
